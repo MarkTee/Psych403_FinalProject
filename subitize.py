@@ -234,7 +234,9 @@ for block_i in range(1, N_BLOCKS+1):
         time_asked = timer.getTime()
 
         # ask the participant how many circles they counted
-        keys = event.waitKeys(keyList=['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'])
+        keys = event.getKeys()
+        if not keys or not keys[0].isnumeric() or not 0 <= int(keys[0]) <= 9:
+            keys = event.waitKeys(keyList=['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'])
         rt = timer.getTime() - time_asked
         response = int(keys[0])  # get the first key the participant pressed
 
@@ -246,7 +248,10 @@ for block_i in range(1, N_BLOCKS+1):
         was_correct.append(n_circles == response)
         rt_list.append(rt)
 
-# finally, wait for the participant to press any key to end the experiment
+#======================
+# END OF EXPERIMENT
+#======================
+# after all blocks, wait for the participant to press any key to end the experiment
 text_stim.text = "Experiment complete.\n Press any key to exit."
 text_stim.draw()
 border.draw()
@@ -256,10 +261,6 @@ keys = event.waitKeys()
 # close the window
 win.close()
 
-
-#======================
-# END OF EXPERIMENT
-#======================
 # create a DataFrame from the gathered results
 results = zip(block_n, trial_n, correct_response, participant_response, was_correct, rt_list)
 results = pd.DataFrame(results, columns=['block',
@@ -274,14 +275,14 @@ results = pd.DataFrame(results, columns=['block',
 ## accuracy
 print("\nPer-Block Accuracy")
 for block_i, percent_correct in results.groupby('block')['correct'].agg("mean").items():
-    print(f"Block {block_i}: {round(percent_correct*100, 2)}%")
+    print(f"Block {block_i}: {round(percent_correct*100, 5)}%")
 
 print("\nPer-Circles Accuracy")
 for n_objects, percent_correct in results.groupby('n_objects_actual')['correct'].agg("mean").items():
-    print(f"{n_objects} circles: {round(percent_correct*100, 2)}%")
+    print(f"{n_objects} circles: {round(percent_correct*100, 5)}%")
 print()
 
-print(f"Overall Accuracy: {round(results['correct'].agg('mean')*100, 2)}%")
+print(f"Overall Accuracy: {round(results['correct'].agg('mean')*100, 5)}%")
 
 
 print('-'*10)
@@ -290,14 +291,14 @@ print('-'*10)
 ## RT
 print("\nPer-Block RT")
 for block_i, rt in results.groupby('block')['rt'].agg("mean").items():
-    print(f"Block {block_i}: {round(rt, 2)}s")
+    print(f"Block {block_i}: {round(rt, 5)}s")
 
 print("\nPer-Circles RT")
 for n_objects, rt in results.groupby('n_objects_actual')['rt'].agg("mean").items():
-    print(f"{n_objects} circles: {round(rt, 2)}s")
+    print(f"{n_objects} circles: {round(rt, 5)}s")
 print()
 
-print(f"Overall RT: {round(results['rt'].agg('mean'), 2)}s")
+print(f"Overall RT: {round(results['rt'].agg('mean'), 5)}s")
 
 
 # write results to a .csv file
